@@ -1,0 +1,17 @@
+# outputs
+*.pdf
+*.tex
+*.png
+*.bmp
+
+# Python stuff
+*.pyc
+__pycache__
+
+# Editor stuff
+*.un~
+tags
+.idea
+
+# OS Stuff
+.DS_store
