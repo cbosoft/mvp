@@ -1,10 +1,13 @@
-from mvp import Visualiser, DataBlock1D, ActionBlock
+from mvp import Visualiser, DataNode1D
 
-with Visualiser('test.png') as mvp:
-    mvp.add_block(DataBlock1D(1, 100, name='Input'))
-    mvp.add_block(ActionBlock('Conv1'))
-    mvp.add_block(DataBlock1D(2, 50))
-    mvp.add_block(ActionBlock('Conv2'))
-    mvp.add_block(DataBlock1D(1, 20, name='Features'))
-    mvp.add_block(ActionBlock('Linear', colour='yellow!50!white'))
-    mvp.add_block(DataBlock1D(1, 10, name='Output'))
+with Visualiser('test.pdf') as mvp:
+    i = mvp.add_node_1d(1, 100, name='InputA')
+    i2 = mvp.add_node_1d(2, 50)
+    i3 = mvp.add_node_1d(2, 50, name='Input B')
+    f = mvp.add_node_1d(1, 100)
+    o = mvp.add_node_1d(1, 10, name='Output')
+
+    mvp.connect(i, i2, name='Conv1')
+    mvp.connect(i2, f, name='Conv2')
+    mvp.connect(i3, f, name='Conv3')
+    mvp.connect(f, o, name='Linear')

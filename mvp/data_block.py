@@ -1,19 +1,20 @@
-from .block import Block
+from .util import pts2tikz
 
 
-class DataBlock(Block):
+class DataNode:
 
-    SCALE = (0.07, 0.07, 0.07)
+    SCALE = (0.1, 0.07, 0.1)
     # scale w, h, d
 
     def __init__(self, w, h, d, *, name=None):
-        self.size = [v*s for v, s in zip([w, h, d], self.SCALE)]
-        self.ppos = None
+        self.size_unscaled = w, h, d
+        self.size = [v*s for v, s in zip(self.size_unscaled, self.SCALE)]
+        self.pos = [0, 0]
         self.name = name
+        self.path_id = 0
 
-    def to_tex(self, pos: list) -> str:
-        x, y = pos
-        self.ppos = [*pos]
+    def to_tex(self) -> str:
+        x, y = self.pos
         w, h, d = self.size
         dx = dy = (2**0.5)*d/4
         y -= h/2
@@ -35,27 +36,35 @@ class DataBlock(Block):
             (x-dx+w, y-dx+h),
             (x-dx+w, y-dx)
         ]
-        outline_tex = self.pts2tikz(outline, fill='white')
-        inline_tex_1 = self.pts2tikz(inline1)
-        inline_tex_2 = self.pts2tikz(inline2)
+        outline_tex = pts2tikz(outline, fill='white')
+        inline_tex_1 = pts2tikz(inline1)
+        inline_tex_2 = pts2tikz(inline2)
         tex = '\n'.join([outline_tex, inline_tex_1, inline_tex_2])
-        pos[0] += w + dx
         if self.name:
             miny = min([y for _, y in outline])
             tex += f'\\node[anchor=north] (foo) at ({x+w/2}, {miny}) {{ {self.name} }};'
+        maxy = max([y for _, y in outline])
+        tex += f'\\node[anchor=south] (foo) at ({x+w/2}, {maxy}) {{ {self.get_label()} }};'
         return tex
 
-    def get_anchors(self, x=None, y=None):
-        if x is None:
-            x, y = self.ppos
+    def get_anchors(self):
+        x, y = self.pos
         w, h, d = self.size
         y -= h/2
         anchors_left = [(x, y+h), (x, y)]
         anchors_right = [(x+w, y+h), (x+w, y)]
         return anchors_left, anchors_right
 
+    def get_label(self) -> str:
+        w, h, d = self.size_unscaled
+        return f'${int(w)}\\times{int(h)}\\times{int(d)}$'
 
-class DataBlock1D(DataBlock):
+
+class DataNode1D(DataNode):
 
     def __init__(self, f, c, *, name=None):
         super().__init__(1, c, f, name=name)
+
+    def get_label(self) -> str:
+        _, c, f = self.size_unscaled
+        return f'${int(c)}\\times{int(f)}$'

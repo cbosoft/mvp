@@ -1,8 +1,10 @@
-import tempfile
 import os
 
-from .data_block import DataBlock
-from .action_block import ActionBlock
+import networkx as nx
+
+from .data_block import DataNode, DataNode1D
+from .action_block import Layers
+from .util import compile_tex
 
 
 class Visualiser:
@@ -22,6 +24,7 @@ class Visualiser:
 
     def __init__(self, fn: str, *, output_tex_too=False):
         self.blocks = []
+        self._graph = nx.DiGraph()
         self.fn = os.path.abspath(fn)
         self.output_tex_too = output_tex_too
 
@@ -29,44 +32,79 @@ class Visualiser:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.draw()
+        if exc_type is None:
+            self.draw()
 
-    def add_block(self, block):
-        if not self.blocks or isinstance(self.blocks[-1], ActionBlock):
-            assert isinstance(block, DataBlock)
-        else:
-            assert isinstance(block, ActionBlock)
-        self.blocks.append(block)
-        return block
+    def add_node(self, *args, **kwargs):
+        node = DataNode(*args, **kwargs)
+        self._graph.add_node(node)
+        self.blocks.append(node)
+        return node
+
+    def add_node_1d(self, *args, **kwargs):
+        node = DataNode1D(*args, **kwargs)
+        self._graph.add_node(node)
+        self.blocks.append(node)
+        return node
+
+    def connect(self, a, b, **kwargs):
+        self._graph.add_edge(a, b, layers=Layers(**kwargs), r_join_fract=(0, 1))
+
+    def position_nodes(self):
+        main_path = nx.dag_longest_path(self._graph)
+        nodes_above = [*main_path]
+        spacing = 3
+        for i, block in enumerate(main_path):
+            block.pos = [i * spacing, 0]
+
+        in_nodes = [l for l, deg in self._graph.in_degree() if not deg]
+        out_nodes = [l for l, deg in self._graph.out_degree() if not deg]
+        for i, i_n in enumerate(in_nodes):
+            for o_n in out_nodes:
+                path = nx.shortest_path(self._graph, i_n, o_n)
+                if all([node in main_path for node in path]):
+                    continue
+                path_on_main = len([n for n in path if n in main_path])
+                path_not_on_main = len(path) - path_on_main
+                n = len(main_path) - path_on_main
+                x = n - path_not_on_main
+                assert x >= 0
+                for node in path:
+                    if node not in main_path:
+                        node.pos[0] = x * spacing
+                        node.pos[1] = nodes_above[x].pos[1] - nodes_above[1].size[1] / 2 - node.size[1] / 2 - 0.75
+                        nodes_above[x] = node
+                        x += 1
+
+    def position_edges(self):
+        main_path = nx.dag_longest_path(self._graph)
+        for node in self._graph.nodes:
+            in_edges = self._graph.in_edges(node)
+            print(in_edges)
+            if not in_edges:
+                continue
+            if len(in_edges) > 1:
+                fract = 1 / len(in_edges)
+                f = 0
+                for edge in sorted(in_edges, key=lambda e: 1.0 if e[0] in main_path and e[1] in main_path else 0.0):
+                    self._graph.edges[edge[0], edge[1]]['r_join_fract'] = f, f+fract
+                    f += fract
 
     def draw(self):
         tex = str(self.LATEX_HEAD)
-        pos = [0, 0]
-        for i, block in enumerate(self.blocks):
-            if isinstance(block, DataBlock):
-                btex = block.to_tex(pos)
-            else:
-                prv = self.blocks[i-1]
-                nxt = self.blocks[i+1]
-                btex = block.to_tex(pos, prv, nxt)
-            tex = tex + '\n' + btex
+        self.position_nodes()
+        self.position_edges()
+        drawn = []
+        for edge in self._graph.edges:
+            l, r = edge
+            if l not in drawn:
+                tex += '\n' + l.to_tex()
+                drawn.append(l)
+            layers = self._graph.edges[l, r]['layers']
+            edge_data = dict(self._graph.edges[l, r])
+            tex += '\n' + layers.to_tex(l, r, **edge_data)
+            if r not in drawn and edge_data['r_join_fract'][0] < 0.01:
+                tex += '\n' + r.to_tex()
+                drawn.append(r)
         tex += '\n' + self.LATEX_TAIL
-
-        with tempfile.TemporaryDirectory() as d:
-            os.chdir(d)
-            tex_fn = 'dia.tex'
-            tex_out_fn = tex_fn.replace('tex', 'pdf')
-            with open(tex_fn, 'w') as f:
-                f.write(tex)
-            self.runsh(f'{self.LATEX_COMMAND} "{tex_fn}"')
-            if self.fn[-3:] != 'pdf':
-                ext = self.fn[-4:]
-                self.runsh(f'convert -density 384 "{tex_out_fn}" -quality 100 "{tex_out_fn}{ext}"')
-                tex_out_fn = tex_out_fn + ext
-            self.runsh(f'cp "{tex_out_fn}" "{self.fn}"')
-            if self.output_tex_too:
-                self.runsh(f'cp "{tex_fn}" "{self.fn[:-4]}.tex"')
-
-    def runsh(self, command):
-        print(command)
-        os.system(command)
+        compile_tex(tex, self.fn, self.LATEX_COMMAND, self.output_tex_too)

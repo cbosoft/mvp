@@ -1,3 +1,3 @@
 from .mvp import Visualiser
-from .data_block import DataBlock, DataBlock1D
-from .action_block import ActionBlock
+from .data_block import DataNode, DataNode1D
+from .action_block import Layers
