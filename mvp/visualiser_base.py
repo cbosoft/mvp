@@ -5,6 +5,7 @@ import networkx as nx
 from .data_node import DataNode, DataNode1D
 from .layers import Layers
 from .util import compile_tex
+from .group import Group
 
 
 class VisualiserBase:
@@ -24,6 +25,7 @@ class VisualiserBase:
 
     def __init__(self, fn: str, *, output_tex_too=False):
         self.nodes = []
+        self.groups = []
         self._graph = nx.DiGraph()
         self.fn = os.path.abspath(fn)
         self.output_tex_too = output_tex_too
@@ -57,6 +59,9 @@ class VisualiserBase:
 
     def connect(self, a, b, **kwargs):
         self._graph.add_edge(a, b, layers=Layers(**kwargs), r_join_fract=(0, 1))
+
+    def group(self, *nodes, name=None, **kwargs):
+        self.groups.append(Group(name, nodes, **kwargs))
 
     def position_nodes(self):
         main_path = nx.dag_longest_path(self._graph)
@@ -102,6 +107,8 @@ class VisualiserBase:
         tex = str(self.LATEX_HEAD)
         self.position_nodes()
         self.position_edges()
+        for group in self.groups:
+            tex += '\n' + group.to_tex()
         drawn = []
         for edge in self._graph.edges:
             l, r = edge
