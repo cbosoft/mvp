@@ -1,4 +1,4 @@
-from .data_block import DataNode
+from .data_node import DataNode
 from .util import pts2tikz
 
 

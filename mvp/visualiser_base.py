@@ -2,8 +2,8 @@ import os
 
 import networkx as nx
 
-from .data_block import DataNode, DataNode1D
-from .action_block import Layers
+from .data_node import DataNode, DataNode1D
+from .layers import Layers
 from .util import compile_tex
 
 
