@@ -1,26 +1,75 @@
+from .layer import Layer
 from .data_node import DataNode
-from .util import pts2tikz
 
 
-class Layers:
+class Conv1d(Layer):
 
-    def __init__(self, name: str, colour='blue!50!white'):
-        super().__init__()
-        self.name = name
-        self.colour = colour
+    def __init__(self, in_ch, out_ch, kernel, stride=1, padding=0, dilation=1, name=None):
+        super().__init__('Conv1d' if name is None else name)
+        self.in_ch = in_ch
+        self.out_ch = out_ch
+        self.kernel = kernel
+        self.stride = stride
+        self.padding = padding
+        self.dilation = dilation
 
-    def to_tex(self, l: DataNode, r: DataNode, *, r_join_fract=None, **kws) -> str:
-        x = (r.pos[0] + l.pos[0])*.5
-        # y = (r.pos[1] + l.pos[1])*.5
-        pt1, pt4 = l.get_anchors()[1]
-        pt2, pt3 = r.get_anchors()[0]
-        if r_join_fract:
-            print(r_join_fract)
-            ym = min([pt2[1], pt3[1]])
-            span = abs(pt2[1] - pt3[1])
-            pt2 = pt2[0], ym + span*r_join_fract[1]
-            pt3 = pt3[0], ym + span*r_join_fract[0]
-        y = sum([pt1[1], pt2[1], pt3[1], pt4[1]])/4
-        tex = '\n' + pts2tikz([pt1, pt2, pt3, pt4, pt1], fill=self.colour, fill_opacity='0.5')
-        tex += f'\\node[anchor=center] (foo) at ({x}, {y}) {{ {self.name} }} ;'
-        return tex
+    def get_output_size(self, node: DataNode):
+        n, c, l = node.size_unscaled
+        print(n, c, l)
+        assert c == self.in_ch, f'{c} != {self.in_ch}'
+        c = self.out_ch
+        l = (l + 2*self.padding - self.dilation*(self.kernel - 1) - 1)//self.stride + 1
+        return n, c, l
+
+
+class MaxPool1d(Layer):
+
+    def __init__(self, kernel, stride=None, padding=1, dilation=1, name=None):
+        super().__init__('MaxPool1d' if name is None else name,
+                         'red!20!white')
+        if stride is None: stride = kernel
+        self.kernel = kernel
+        assert stride > 0
+        self.stride = stride
+        self.padding = padding
+        self.dilation = dilation
+
+    def get_output_size(self, node: DataNode):
+        n, c, l = node.size_unscaled
+        l = (l + 2*self.padding - self.dilation*(self.kernel - 1) - 1.0001)//self.stride + 1
+        print(l)
+        return n, c, l
+
+
+class Linear(Layer):
+
+    def __init__(self, in_f, out_f, name=None):
+        super().__init__('Linear' if name is None else name,
+                         'green!50!white')
+        self.in_f = in_f
+        self.out_f = out_f
+
+    def get_output_size(self, node: DataNode):
+        n, c, l = node.size_unscaled
+        assert l == self.in_f
+        return n, c, self.out_f
+
+
+class ReLU(Layer):
+
+    def __init__(self, name=None):
+        super().__init__('ReLU' if name is None else name,
+                         colour='blue!10!white')
+
+    def get_output_size(self, node: DataNode):
+        return node.size_unscaled
+
+
+class Sigmoid(Layer):
+
+    def __init__(self, name=None):
+        super().__init__('Sigmoid' if name is None else name,
+                         colour='yellow!50!white')
+
+    def get_output_size(self, node: DataNode):
+        return node.size_unscaled

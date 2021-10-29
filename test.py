@@ -1,15 +1,27 @@
-from mvp import Visualiser, DataNode1D
+from mvp import Visualiser
+import mvp.layers as nn
 
-with Visualiser('test.pdf') as mvp:
-    i = mvp.add_node_1d(1, 100, name='InputA')
-    i2 = mvp.add_node_1d(2, 50)
-    i3 = mvp.add_node_1d(2, 50, name='Input B')
-    i4 = mvp.add_node_1d(4, 30)
-    f = mvp.add_node_1d(1, 100)
-    o = mvp.add_node_1d(1, 10, name='Output')
 
-    mvp.connect(i, i2, name='Conv1')
-    mvp.connect(i2, f, name='Conv2')
-    mvp.connect(i3, i4, name='foo')
-    mvp.connect(i4, f, name='Conv3')
-    mvp.connect(f, o, name='Linear')
+def conv_block(*args):
+    return [
+        nn.Conv1d(*args),
+        nn.ReLU('ReLU'),
+        nn.MaxPool1d(2)
+    ]
+
+
+def linear_block(in_f, out_f, mid_f=None):
+    if mid_f is None: mid_f = out_f
+    return [
+        nn.Linear(in_f, mid_f),
+        nn.ReLU(),
+        nn.Linear(mid_f, out_f),
+        nn.Sigmoid()
+    ]
+
+
+with Visualiser('test.pdf') as net:
+    inp = net.add_node_1d(1, 25, name='Input')
+    after_conv1 = net.apply_layer_to(conv_block(1, 5, 5), inp)
+    after_conv2 = net.apply_layer_to(conv_block(5, 15, 5), after_conv1)
+    out = net.apply_layer_to(linear_block(after_conv2.size_unscaled[-1], 50, 25), after_conv2, name='Output')

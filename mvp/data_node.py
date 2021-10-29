@@ -7,10 +7,10 @@ class DataNode(TreeNode):
     # scale w, h, d
     IDX = 0
 
-    def __init__(self, w, h, d, *, name=None):
+    def __init__(self, n, c, l, *, name=None):
         super().__init__()
-        self.size_unscaled = w, h, d
-        self.size = [v*s for v, s in zip(self.size_unscaled, self.SCALE)]
+        self.size_unscaled = n, c, l
+        self.size = [v*s for v, s in zip([n, l, c], self.SCALE)]
         self.pos = [0, 0]
         self.name = name
         self.path_id = 0
@@ -70,7 +70,7 @@ class DataNode(TreeNode):
 class DataNode1D(DataNode):
 
     def __init__(self, f, c, *, name=None):
-        super().__init__(1, c, f, name=name)
+        super().__init__(1, f, c, name=name)
 
     def get_label(self) -> str:
         _, c, f = self.size_unscaled

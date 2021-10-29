@@ -3,9 +3,10 @@ import os
 import networkx as nx
 
 from .data_node import DataNode, DataNode1D
-from .layers import Layers
+from .edge import Edge
 from .util import compile_tex
 from .group import Group
+from .layer import Layer
 
 
 class VisualiserBase:
@@ -58,7 +59,19 @@ class VisualiserBase:
         return node
 
     def connect(self, a, b, **kwargs):
-        self._graph.add_edge(a, b, layers=Layers(**kwargs), r_join_fract=(0, 1))
+        self._graph.add_edge(a, b, layers=Edge(**kwargs), r_join_fract=(0, 1))
+
+    def apply_layer_to(self, layer, node, **kwargs):
+        if isinstance(layer, list):
+            assert layer
+            for l in layer[:-1]:
+                node = self.apply_layer_to(l, node)
+            node = self.apply_layer_to(layer[-1], node, **kwargs)
+            return node
+        else:
+            new = self.add_node(*layer(node), **kwargs)
+            self.connect(node, new, **layer.edge_kwargs)
+            return new
 
     def group(self, *nodes, name=None, **kwargs):
         self.groups.append(Group(name, nodes, **kwargs))
