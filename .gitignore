@@ -4,6 +4,8 @@
 *.png
 *.bmp
 
+ignore*
+
 # Python stuff
 *.pyc
 __pycache__

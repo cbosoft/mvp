@@ -20,10 +20,15 @@ class DataNode(TreeNode):
     def __lt__(self, other):
         return self.idx >= other.idx
 
+    @property
+    def ds(self):
+        w, h, d = self.size
+        return(2**0.5)*d/4
+
     def to_tex(self) -> str:
         x, y = self.pos
         w, h, d = self.size
-        dx = dy = (2**0.5)*d/4
+        dx = dy = self.ds
         y -= h/2
         outline = [
             (x-dx, y-dy),
