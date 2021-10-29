@@ -1,17 +1,24 @@
-from .util import pts2tikz
+from .util import pts2tikz, TreeNode
 
 
-class DataNode:
+class DataNode(TreeNode):
 
     SCALE = (0.1, 0.07, 0.1)
     # scale w, h, d
+    IDX = 0
 
     def __init__(self, w, h, d, *, name=None):
+        super().__init__()
         self.size_unscaled = w, h, d
         self.size = [v*s for v, s in zip(self.size_unscaled, self.SCALE)]
         self.pos = [0, 0]
         self.name = name
         self.path_id = 0
+        self.idx = DataNode.IDX
+        DataNode.IDX += 1
+
+    def __lt__(self, other):
+        return self.idx >= other.idx
 
     def to_tex(self) -> str:
         x, y = self.pos

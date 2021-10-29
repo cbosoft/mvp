@@ -7,7 +7,7 @@ from .layers import Layers
 from .util import compile_tex
 
 
-class Visualiser:
+class VisualiserBase:
 
     LATEX_HEAD = r'''
 \documentclass{standalone}
@@ -23,7 +23,7 @@ class Visualiser:
     LATEX_COMMAND = 'xelatex --interaction=nonstopmode'
 
     def __init__(self, fn: str, *, output_tex_too=False):
-        self.blocks = []
+        self.nodes = []
         self._graph = nx.DiGraph()
         self.fn = os.path.abspath(fn)
         self.output_tex_too = output_tex_too
@@ -35,16 +35,24 @@ class Visualiser:
         if exc_type is None:
             self.draw()
 
+    def graph2tree(self, ptr: DataNode, dir: str):
+        edges = self._graph.in_edges(ptr) if dir == 'down' else self._graph.out_edges(ptr)
+        for child, _ in edges:
+            ptr.add_child(child)
+
+        for child in ptr.children:
+            self.graph2tree(child, dir)
+
     def add_node(self, *args, **kwargs):
         node = DataNode(*args, **kwargs)
         self._graph.add_node(node)
-        self.blocks.append(node)
+        self.nodes.append(node)
         return node
 
     def add_node_1d(self, *args, **kwargs):
         node = DataNode1D(*args, **kwargs)
         self._graph.add_node(node)
-        self.blocks.append(node)
+        self.nodes.append(node)
         return node
 
     def connect(self, a, b, **kwargs):
