@@ -61,13 +61,16 @@ class VisualiserBase:
     def connect(self, a, b, **kwargs):
         self._graph.add_edge(a, b, layers=Edge(**kwargs), r_join_fract=(0, 1))
 
-    def apply_layer_to(self, layer, node, **kwargs):
+    def apply_layer_to(self, layer, node, group=None, **kwargs):
         if isinstance(layer, list):
             assert layer
+            nodes = [node]
             for l in layer[:-1]:
-                node = self.apply_layer_to(l, node)
-            node = self.apply_layer_to(layer[-1], node, **kwargs)
-            return node
+                nodes.append(self.apply_layer_to(l, nodes[-1]))
+            nodes.append(self.apply_layer_to(layer[-1], nodes[-1], **kwargs))
+            if group is not None:
+                self.group(*nodes, name=group)
+            return nodes[-1]
         else:
             new = self.add_node(*layer(node), **kwargs)
             self.connect(node, new, **layer.edge_kwargs)
