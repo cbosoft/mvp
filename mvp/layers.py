@@ -73,3 +73,13 @@ class Sigmoid(Layer):
 
     def get_output_size(self, node: DataNode):
         return node.size_unscaled
+
+
+class LeakyReLU(Layer):
+
+    def __init__(self, name=None):
+        super().__init__('LeakyReLU' if name is None else name,
+                         colour='orange!60!white')
+
+    def get_output_size(self, node: DataNode):
+        return node.size_unscaled
