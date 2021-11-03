@@ -51,7 +51,7 @@ class Linear(Layer):
 
     def get_output_size(self, node: DataNode):
         n, c, l = node.size_unscaled
-        assert l == self.in_f
+        assert l == self.in_f, f'{l} != {self.in_f}'
         return n, c, self.out_f
 
 
