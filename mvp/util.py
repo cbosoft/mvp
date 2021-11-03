@@ -23,7 +23,7 @@ def runsh(command: str):
         exit(1)
 
 
-def compile_tex(tex: str, out_fn: str, latex_command='xelatex', output_tex_too=False):
+def compile_tex(tex: str, out_fn: str, latex_command='xelatex', output_tex_too=False, convert='convert'):
     with tempfile.TemporaryDirectory() as d:
         os.chdir(d)
         tex_fn = 'dia.tex'
@@ -34,7 +34,7 @@ def compile_tex(tex: str, out_fn: str, latex_command='xelatex', output_tex_too=F
         if out_fn[-3:] != 'pdf':
             ext = out_fn[-3:]
             result_fn = result_fn.replace('pdf', ext)
-            runsh(f'convert -density 384 "{pdf_fn}" -quality 100 -alpha remove "{result_fn}"')
+            runsh(f'{convert} -density 384 "{pdf_fn}" -quality 100 -alpha remove "{result_fn}"')
         runsh(f'cp "{result_fn}" "{out_fn}"')
         if output_tex_too:
             runsh(f'cp "{tex_fn}" "{out_fn[:-4]}.tex"')

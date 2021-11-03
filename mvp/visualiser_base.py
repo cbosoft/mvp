@@ -23,6 +23,7 @@ class VisualiserBase:
 \end{document}
 '''
     LATEX_COMMAND = 'xelatex --interaction=nonstopmode'
+    CONVERT_COMMAND = 'convert'
 
     def __init__(self, fn: str, *, output_tex_too=False):
         self.nodes = []
@@ -138,4 +139,4 @@ class VisualiserBase:
                 tex += '\n' + r.to_tex()
                 drawn.append(r)
         tex += '\n' + self.LATEX_TAIL
-        compile_tex(tex, self.fn, self.LATEX_COMMAND, self.output_tex_too)
+        compile_tex(tex, self.fn, self.LATEX_COMMAND, self.output_tex_too, convert=self.CONVERT_COMMAND)
