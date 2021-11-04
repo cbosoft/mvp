@@ -4,7 +4,7 @@ from .util import pts2tikz
 
 class Edge:
 
-    def __init__(self, name: str, colour='blue!50!white'):
+    def __init__(self, name='', colour='blue!50!white'):
         super().__init__()
         self.name = name
         self.colour = colour
