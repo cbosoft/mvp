@@ -3,7 +3,7 @@ from .data_node import DataNode
 
 class Layer:
 
-    def __init__(self, name, colour='blue!50!white'):
+    def __init__(self, name='', colour='blue!50!white'):
         self.name = name
         self.colour = colour
 
