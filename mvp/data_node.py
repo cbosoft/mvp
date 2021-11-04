@@ -8,7 +8,7 @@ class DataNode(TreeNode):
     # scale w, h, d
     IDX = 0
 
-    def __init__(self, n, c, l, *, name=None):
+    def __init__(self, n, c, l, *, name=None, label_text_size='tiny', name_text_size='small'):
         super().__init__()
         self.size_unscaled = n, c, l
         self.size = [v*s for v, s in zip([n, l, c], self.SCALE)]
@@ -17,6 +17,8 @@ class DataNode(TreeNode):
         self.path_id = 0
         self.idx = DataNode.IDX
         DataNode.IDX += 1
+        self.label_text_size = label_text_size
+        self.name_text_size = name_text_size
 
     def __lt__(self, other):
         return self.idx >= other.idx
@@ -55,9 +57,8 @@ class DataNode(TreeNode):
         tex = '\n'.join([outline_tex, inline_tex_1, inline_tex_2])
         if self.name:
             miny = min([y for _, y in outline])
-            tex += f'\\node[anchor=north] (foo) at ({x+w/2}, {miny}) {{ {self.name} }};'
-        maxy = max([y for _, y in outline])
-        tex += f'\\node[anchor=south] (foo) at ({x+w/2}, {maxy}) {{ {self.get_label()} }};'
+            tex += f'\\node[anchor=north] (foo) at ({x+w/2}, {miny}) {{ \\{self.name_text_size} {self.name} }};'
+        tex += f'\\node[anchor=south, rectangle, fill=white, fill opacity=0.5, text opacity=1, inner sep=1, outer sep=1] (foo) at ({x+dx+w/2}, {y+dy+h}) {{ \\{self.label_text_size} {self.get_label()} }};'
         return tex
 
     def get_anchors(self):
@@ -70,7 +71,7 @@ class DataNode(TreeNode):
 
     def get_label(self) -> str:
         w, h, d = self.size_unscaled
-        return f'${int(w)}\\times{int(h)}\\times{int(d)}$'
+        return f'{int(w)}$\\times${int(h)}$\\times${int(d)}'
 
 
 class DataNode1D(DataNode):
