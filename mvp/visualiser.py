@@ -42,8 +42,8 @@ class Visualiser:
 
     def graph2tree(self, ptr: DataNode, dir: str):
         edges = self._graph.in_edges(ptr) if dir == 'down' else self._graph.out_edges(ptr)
-        for child, _ in edges:
-            ptr.add_child(child)
+        for l, r in edges:
+            ptr.add_child(l if dir == 'down' else r)
 
         for child in ptr.children:
             self.graph2tree(child, dir)
