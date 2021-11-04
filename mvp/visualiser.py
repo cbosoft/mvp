@@ -20,23 +20,23 @@ class Visualiser(VisualiserBase):
         if n_in == 1 and n_out == 1:
             Visualiser_SISO.position_nodes(self)
         elif n_in == 1 and n_out > 1:
-            raise NotImplementedError
+            raise NotImplementedError('SIMO not implemented')
         elif n_in > 1 and n_out == 1:
             Visualiser_MISO.position_nodes(self)
         elif n_in > 1 and n_out > 1:
-            raise NotImplementedError
+            raise NotImplementedError('MIMO not implemented')
         else:
-            raise NotImplementedError
+            raise NotImplementedError(f'Incompatible inputs/outputs: {n_in} and {n_out}')
 
     def position_edges(self):
         n_in, n_out = self.order
         if n_in == 1 and n_out == 1:
             Visualiser_SISO.position_edges(self)
         elif n_in == 1 and n_out > 1:
-            raise NotImplementedError
+            raise NotImplementedError('SIMO not implemented')
         elif n_in > 1 and n_out == 1:
             Visualiser_MISO.position_edges(self)
         elif n_in > 1 and n_out > 1:
-            raise NotImplementedError
+            raise NotImplementedError('MIMO not implemented')
         else:
-            raise NotImplementedError
+            raise NotImplementedError(f'Incompatible inputs/outputs: {n_in} and {n_out}')
