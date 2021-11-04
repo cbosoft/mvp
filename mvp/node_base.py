@@ -4,6 +4,10 @@ class TreeNode:
         self.parent = parent
         self.children = []
 
+    def clear(self):
+        self.parent = None
+        self.children = []
+
     @property
     def siblings(self):
         return tuple() if not self.parent else tuple(self.parent.children)
