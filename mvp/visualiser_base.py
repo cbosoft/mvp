@@ -131,12 +131,12 @@ class VisualiserBase:
             l, r = edge
             if l not in drawn:
                 tex += '\n' + l.to_tex()
-                drawn.append(l)
+                # drawn.append(l)
             layers = self._graph.edges[l, r]['layers']
             edge_data = dict(self._graph.edges[l, r])
             tex += '\n' + layers.to_tex(l, r, **edge_data)
             if r not in drawn and edge_data['r_join_fract'][0] < 0.01:
                 tex += '\n' + r.to_tex()
-                drawn.append(r)
+                # drawn.append(r)
         tex += '\n' + self.LATEX_TAIL
         compile_tex(tex, self.fn, self.LATEX_COMMAND, self.output_tex_too, convert=self.CONVERT_COMMAND)
