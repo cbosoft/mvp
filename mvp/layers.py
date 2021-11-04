@@ -15,7 +15,6 @@ class Conv1d(Layer):
 
     def get_output_size(self, node: DataNode):
         n, c, l = node.size_unscaled
-        print(n, c, l)
         assert c == self.in_ch, f'{c} != {self.in_ch}'
         c = self.out_ch
         l = (l + 2*self.padding - self.dilation*(self.kernel - 1) - 1)//self.stride + 1
@@ -37,7 +36,6 @@ class MaxPool1d(Layer):
     def get_output_size(self, node: DataNode):
         n, c, l = node.size_unscaled
         l = (l + 2*self.padding - self.dilation*(self.kernel - 1) - 1.0001)//self.stride + 1
-        print(l)
         return n, c, l
 
 

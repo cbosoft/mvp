@@ -12,7 +12,6 @@ class Visualiser_MISO(VisualiserBase):
         spacing = 3
         for node in root:
             y = 0
-            stt = 'alone'
             if node.parent:
                 siblings_and_cousins = node.get_siblings_and_cousins()
                 if len(siblings_and_cousins) > 1:
@@ -25,10 +24,8 @@ class Visualiser_MISO(VisualiserBase):
                     for i, dy in enumerate(dys):
                         cumu_dys[i] -= dy/2
                     y = cumu_dys[idx] - span/2
-                    stt = f' many siblings {len(siblings_and_cousins)}'
                 else:
                     y = node.parent.pos[1]
-            print(y, stt)
             node.pos = [-node.get_level()*spacing, y]
 
     def position_edges(self):
