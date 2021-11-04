@@ -138,12 +138,15 @@ class Visualiser:
 
     def position_edges(self):
         for node in self._graph.nodes:
-            y = node.pos[1] - .5*node.size[1]
+            hh = .5*node.size[1]
+            y = node.pos[1] - hh
             in_edges = self._graph.in_edges(node)
             if in_edges and len(in_edges) > 1:
                 yi = y
                 for l, r in sorted(in_edges, key=lambda e: e[0].pos[1]):
                     dy = l.size[1]
+                    if yi + dy > hh:
+                        yi -= hh*2
                     self._graph.edges[l, r]['r_pos_y'] = yi, yi+dy
                     yi += dy
             out_edges = self._graph.out_edges(node)
@@ -151,6 +154,8 @@ class Visualiser:
                 yi = y
                 for l, r in sorted(out_edges, key=lambda e: e[1].pos[1]):
                     dy = r.size[1]
+                    if yi + dy > hh:
+                        yi -= hh*2
                     self._graph.edges[l, r]['l_pos_y'] = yi, yi+dy
                     yi += dy
 
