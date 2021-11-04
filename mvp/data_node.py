@@ -76,7 +76,3 @@ class DataNode1D(DataNode):
 
     def __init__(self, f, c, *, name=None):
         super().__init__(1, f, c, name=name)
-
-    def get_label(self) -> str:
-        _, c, f = self.size_unscaled
-        return f'${int(c)}\\times{int(f)}$'
