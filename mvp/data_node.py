@@ -73,6 +73,10 @@ class DataNode(TreeNode):
         w, h, d = self.size_unscaled
         return f'{int(w)}$\\times${int(h)}$\\times${int(d)}'
 
+    def __repr__(self):
+        w, h, d = self.size_unscaled
+        return f'DataNode#{self.idx}({w}, {h}, {d})'
+
 
 class DataNode1D(DataNode):
 
