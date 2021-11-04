@@ -1,4 +1,5 @@
-from .util import pts2tikz, TreeNode
+from .node_base import TreeNode
+from .util import pts2tikz
 
 
 class DataNode(TreeNode):
