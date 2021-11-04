@@ -31,6 +31,7 @@ class VisualiserBase:
         self._graph = nx.DiGraph()
         self.fn = os.path.abspath(fn)
         self.output_tex_too = output_tex_too
+        self.spacing = (2, 3)
 
     def __enter__(self):
         return self

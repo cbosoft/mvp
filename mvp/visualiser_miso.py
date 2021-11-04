@@ -9,14 +9,14 @@ class Visualiser_MISO(VisualiserBase):
     def position_nodes(self):
         root = [n for n, deg in self._graph.out_degree() if not deg][0]
         self.graph2tree(root, 'down')
-        spacing = 3
+        spacing_x, spacing_y = self.spacing
         for node in root:
             y = 0
             if node.parent:
                 siblings_and_cousins = node.get_siblings_and_cousins()
                 if len(siblings_and_cousins) > 1:
                     idx = siblings_and_cousins.index(node)
-                    dys = [n.size[1] + 1.5 for n in siblings_and_cousins]
+                    dys = [n.size[1] + spacing_y for n in siblings_and_cousins]
                     span = sum(dys)
                     cumu_dys = [dys[0]]
                     for dy in dys[1:]:
@@ -26,7 +26,7 @@ class Visualiser_MISO(VisualiserBase):
                     y = cumu_dys[idx] - span/2
                 else:
                     y = node.parent.pos[1]
-            node.pos = [-node.get_level()*spacing, y]
+            node.pos = [-node.get_level()*spacing_x, y]
 
     def position_edges(self):
         main_path = nx.dag_longest_path(self._graph)
