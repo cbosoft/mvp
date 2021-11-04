@@ -41,15 +41,20 @@ class MaxPool1d(Layer):
 
 class Linear(Layer):
 
-    def __init__(self, in_f, out_f, name=None):
+    def __init__(self, a, b=None, name=None):
         super().__init__('Linear' if name is None else name,
                          'green!50!white')
-        self.in_f = in_f
-        self.out_f = out_f
+        if b is not None:
+            self.in_f = a
+            self.out_f = b
+        else:
+            self.in_f = None
+            self.out_f = a
 
     def get_output_size(self, node: DataNode):
         n, c, l = node.size_unscaled
-        assert l == self.in_f, f'{l} != {self.in_f}'
+        if self.in_f:
+            assert l == self.in_f, f'{l} != {self.in_f}'
         return n, c, self.out_f
 
 
