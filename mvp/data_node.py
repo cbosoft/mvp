@@ -51,7 +51,7 @@ class DataNode(TreeNode):
             (x-dx+w, y-dx+h),
             (x-dx+w, y-dx)
         ]
-        outline_tex = pts2tikz(outline, fill='white')
+        outline_tex = pts2tikz(outline, fill='white', fill_opacity='0.8')
         inline_tex_1 = pts2tikz(inline1)
         inline_tex_2 = pts2tikz(inline2)
         tex = '\n'.join([outline_tex, inline_tex_1, inline_tex_2])
