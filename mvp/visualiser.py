@@ -13,6 +13,7 @@ class Visualiser:
     LATEX_HEAD = r'''
 \documentclass{standalone}
 \usepackage{tikz}
+\usetikzlibrary{positioning}
 
 \begin{document}
   \begin{tikzpicture}

@@ -1,3 +1,5 @@
+from typing import List
+
 from .data_node import DataNode
 
 
@@ -11,7 +13,8 @@ class Layer:
     def edge_kwargs(self):
         return dict(
             name=self.name,
-            colour=self.colour
+            colour=self.colour,
+            details=self.get_details()
         )
 
     def __call__(self, inp):
@@ -19,3 +22,6 @@ class Layer:
 
     def get_output_size(self, node: DataNode):
         raise NotImplementedError
+
+    def get_details(self) -> List[str]:
+        return []

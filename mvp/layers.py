@@ -1,29 +1,35 @@
+from typing import List
+
 from .layer import Layer
 from .data_node import DataNode
 
 
 class Conv1d(Layer):
 
-    def __init__(self, in_ch, out_ch, kernel, stride=1, padding=0, dilation=1, name=None):
-        super().__init__('Conv1d' if name is None else name)
-        self.in_ch = in_ch
-        self.out_ch = out_ch
-        self.kernel = kernel
-        self.stride = stride
-        self.padding = padding
-        self.dilation = dilation
+    def __init__(self, in_ch: int, out_ch: int, kernel: int, stride=1, padding=0, dilation=1, name=None):
+        super().__init__(self.__class__.__name__ if name is None else name)
+        self.in_ch: int = in_ch
+        self.out_ch: int = out_ch
+        self.kernel: int = kernel
+        self.stride: int = stride
+        self.padding: int = padding
+        self.dilation: int = dilation
 
     def get_output_size(self, node: DataNode):
         n, c, l = node.size_unscaled
-        assert c == self.in_ch, f'{c} != {self.in_ch}'
+        assert c == self.in_ch, f'in {self.__class__.__name__}: {c} != {self.in_ch}'
         c = self.out_ch
         l = (l + 2*self.padding - self.dilation*(self.kernel - 1) - 1)//self.stride + 1
         return n, c, l
 
+    def get_details(self) -> List[str]:
+        return [f'${{\\rm kernel}} = {self.kernel}$', f'${{\\rm stride}} = {self.stride}$',
+                f'${{\\rm padding}} = {self.padding}$', f'${{\\rm dilation}} = {self.dilation}$']
+
 
 class MaxPool1d(Layer):
 
-    def __init__(self, kernel, stride=None, padding=1, dilation=1, name=None):
+    def __init__(self, kernel, stride=None, padding=0, dilation=1, name=None):
         super().__init__('MaxPool1d' if name is None else name,
                          'red!20!white')
         if stride is None: stride = kernel
@@ -34,9 +40,13 @@ class MaxPool1d(Layer):
         self.dilation = dilation
 
     def get_output_size(self, node: DataNode):
-        n, c, l = node.size_unscaled
-        l = (l + 2*self.padding - self.dilation*(self.kernel - 1) - 1.0001)//self.stride + 1
-        return n, c, l
+        n, c, f = node.size_unscaled
+        f = (f + 2*self.padding - self.dilation*(self.kernel - 1) - 1)//self.stride + 1
+        return n, c, f
+
+    def get_details(self) -> List[str]:
+        return [f'${{\\rm kernel}} = {self.kernel}$', f'${{\\rm stride}} = {self.stride}$',
+                f'${{\\rm padding}} = {self.padding}$', f'${{\\rm dilation}} = {self.dilation}$']
 
 
 class Linear(Layer):
@@ -54,8 +64,12 @@ class Linear(Layer):
     def get_output_size(self, node: DataNode):
         n, c, l = node.size_unscaled
         if self.in_f:
-            assert l == self.in_f, f'{l} != {self.in_f}'
+            assert l == self.in_f, f'in {self.__class__.__name__}: {l} != {self.in_f}'
         return n, c, self.out_f
+
+    def get_details(self) -> List[str]:
+        inf = 'guess' if self.in_f is None else self.in_f
+        return [f'${{\\rm n\\ input\\ features}} = {inf}$', f'${{\\rm n\\ output\\ features}} = {self.out_f}$']
 
 
 class ReLU(Layer):
