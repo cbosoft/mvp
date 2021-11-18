@@ -8,10 +8,10 @@ def clean_key(key):
     return key
 
 
-def pts2tikz(pts, **kws) -> str:
+def pts2tikz(pts, *args, **kws) -> str:
     cmd = '\\draw'
     if kws:
-        cmd += '[' + ','.join([f'{clean_key(k)}={v}' for k, v in kws.items()]) + ']'
+        cmd += '[' + ','.join(args) + ','.join([f'{clean_key(k)}={v}' for k, v in kws.items()]) + ']'
     return cmd + ' ' + '--'.join([f'({xi}, {yi})' for xi, yi in pts]) + ';'
 
 
