@@ -18,8 +18,8 @@ def pts2tikz(pts, **kws) -> str:
 def runsh(command: str):
     proc = sp.run(command, shell=True, stderr=sp.PIPE, stdout=sp.PIPE)
     if proc.returncode:
-        print(proc.stdout)
-        print(proc.stderr)
+        print(proc.stdout.decode())
+        print(proc.stderr.decode())
         exit(1)
 
 
