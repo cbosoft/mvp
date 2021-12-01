@@ -35,8 +35,11 @@ class Edge:
         angle = math.atan(dy/dx)*180/math.pi
         if dx < 0: angle += 180
         if self.details:
-            tex += pts2tikz([(x, y), (x, bottomy)])
-            tex += f'\\node[anchor=north, rotate={angle}] (edge{self.EID}) at ({x}, {bottomy}) {{ \\{self.text_size} {self.name} }} ;'
+            y1 = y
+            f = 0.75
+            y2 = y*(1. - f) + bottomy*f
+            tex += pts2tikz([(x, y1), (x, y2)])
+            tex += f'\\node[anchor=north] (edge{self.EID}) at ({x}, {y2}) {{ \\{self.text_size} {self.name} }} ;'
             prev = f'edge{self.EID}'
             for i, d in enumerate(self.details):
                 dn = f'detail{i}edge{self.EID}'
