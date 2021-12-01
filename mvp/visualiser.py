@@ -85,7 +85,8 @@ class Visualiser:
         inputs = [n for n, deg in self._graph.in_degree() if not deg]
         outputs = [n for n, deg in self._graph.out_degree() if not deg]
 
-        top_node = bottom_node = None
+        top_node: DataNode = None
+        bottom_node: DataNode = None
         if len(inputs) > 1 and len(outputs) > 1:
             common_nodes = None
             for i in inputs:
@@ -117,6 +118,7 @@ class Visualiser:
             print(f'Drawing {root} {direction}')
             root.clear()
             self.graph2tree(root, direction)
+            root.set_dir(direction)
             spacing_x, spacing_y = self.spacing
             for node in root:
                 y = 0

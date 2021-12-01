@@ -77,6 +77,24 @@ class DataNode(TreeNode):
         w, h, d = self.size_unscaled
         return f'DataNode#{self.idx}({w}, {h}, {d})'
 
+    def has_inputs(self) -> bool:
+        if self.dir == 'up':
+            return self.has_parent()
+        else:
+            return self.has_children()
+
+    def has_outputs(self) -> bool:
+        if self.dir == 'up':
+            return self.has_children()
+        else:
+            return self.has_parent()
+
+    def is_input(self) -> bool:
+        return not self.has_inputs()
+
+    def is_output(self) -> bool:
+        return not self.has_outputs()
+
 
 class DataNode1D(DataNode):
 

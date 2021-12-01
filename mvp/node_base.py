@@ -1,8 +1,23 @@
+from typing import List
+
+
 class TreeNode:
 
     def __init__(self, parent=None):
         self.parent = parent
-        self.children = []
+        self.children: List["TreeNode"] = []
+        self.dir = 'down'
+
+    def set_dir(self, d):
+        self.dir = d
+        for child in self.children:
+            child.set_dir(d)
+
+    def has_children(self) -> bool:
+        return bool(self.children)
+
+    def has_parent(self) -> bool:
+        return self.parent is not None
 
     def clear(self):
         self.parent = None
