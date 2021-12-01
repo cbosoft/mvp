@@ -63,7 +63,7 @@ class Visualiser:
     def connect(self, a, b, **kwargs):
         self._graph.add_edge(a, b, layers=Edge(**kwargs), r_join_fract=(0, 1))
 
-    def apply_layer_to(self, layer, node, group=None, **kwargs):
+    def apply_layer_to(self, layer, node, group=None, group_kwargs=None, **kwargs):
         if isinstance(layer, list):
             assert layer
             nodes = [node]
@@ -71,7 +71,7 @@ class Visualiser:
                 nodes.append(self.apply_layer_to(l, nodes[-1]))
             nodes.append(self.apply_layer_to(layer[-1], nodes[-1], **kwargs))
             if group is not None:
-                self.group(*nodes, name=group)
+                self.group(*nodes, name=group, **({} if not group_kwargs else group_kwargs))
             return nodes[-1]
         else:
             new = self.add_node(*layer(node), **kwargs)
