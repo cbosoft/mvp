@@ -55,10 +55,17 @@ class DataNode(TreeNode):
         inline_tex_1 = pts2tikz(inline1)
         inline_tex_2 = pts2tikz(inline2)
         tex = '\n'.join([outline_tex, inline_tex_1, inline_tex_2])
+        tex += f'\\node[anchor=south, rectangle, fill=white, fill opacity=0.5, text opacity=1, inner sep=1, outer sep=1] (node{self.idx}) at ({x+dx+w/2}, {y+dy+h}) {{ \\{self.label_text_size} {self.get_label()} }};'
         if self.name:
-            miny = min([y for _, y in outline])
-            tex += f'\\node[anchor=north] (foo) at ({x+w/2}, {miny}) {{ \\{self.name_text_size} {self.name} }};'
-        tex += f'\\node[anchor=south, rectangle, fill=white, fill opacity=0.5, text opacity=1, inner sep=1, outer sep=1] (foo) at ({x+dx+w/2}, {y+dy+h}) {{ \\{self.label_text_size} {self.get_label()} }};'
+            mny = sum([y for _, y in outline])/len(outline)
+            mnx = sum([x for x, _ in outline])/len(outline)
+            off = 0.05
+            if self.is_input():
+                tex += f'\\node[anchor=east] (foo) at ({mnx-off},{mny}) {{ \\{self.name_text_size} {self.name} }};'
+            elif self.is_output():
+                tex += f'\\node[anchor=west] (foo) at ({mnx+off},{mny}) {{ \\{self.name_text_size} {self.name} }};'
+            else:
+                tex += f'\\node[above=.05cm of node{self.idx}] (foo) {{ \\{self.name_text_size} {self.name} }};'
         return tex
 
     def get_anchors(self):
